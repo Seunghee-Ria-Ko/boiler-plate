@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const cookieParser = require("cookie-parser");
 const port = 3000;
 
 const { User } = require("./models/User");
@@ -9,6 +10,8 @@ const { User } = require("./models/User");
 app.use(bodyParser.urlencoded({ extended: true }));
 // application/json  json 타입으로 된거를 분석해서 가져올수있게해줌
 app.use(bodyParser.json());
+app.use(cookieParser());
+
 const config = require("./config/key");
 
 const mongoose = require("mongoose");
@@ -50,13 +53,29 @@ app.post("/login", (req, res) => {
       });
     }
     // 2. 요청된 이메일이 데이터베이스에 있다면 비밀번호가 맞는 비밀번호인지 확인
-    user.comparePassword(req.body.password, (err, isMatch) => {
+    userInfo.comparePassword(req.body.password, (err, isMatch) => {
+      console.log("err", err);
+      console.log("isMatch", isMatch);
+      // console.log('emai;')
+      console.log("emai", userInfo.email);
+      console.log("body -> emai", req.body.email);
+      console.log("body -> password", req.body.password);
+      console.log("pw", userInfo.password);
       if (!isMatch) {
         return res.json({ loginSuccess: false, message: "Wrong Password" });
       }
 
       // 3. 비밀번호까지 같다면 token 을 생성
-      user.generateToken((err, user) => {});
+      userInfo.generateToken((err, user) => {
+        if (err) return res.status(400).send(err);
+
+        // 토큰을 저장 -> 어디에? 쿠키, 로컬스토리지
+        // 쿠키에 저장하려면 -> npm install cookie-parser --save
+        res
+          .cookie("x_auth", user.token)
+          .status(200)
+          .json({ loginSuccess: true, userId: user._id });
+      });
     });
   });
 });
