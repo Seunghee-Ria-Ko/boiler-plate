@@ -104,6 +104,19 @@ app.get("/api/users/auth", auth, (req, res) => {
   );
 });
 
+// logout route 만들기
+app.get("/api/users/logout", auth, (req, res) => {
+  console.log("req.user", req.user);
+  // 로그아웃 하려는 유저를 데이터베이스에서 찾아서
+  User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({
+      success: true,
+    });
+  });
+  // 그 유저의 토큰을 지워준다
+});
+
 app.listen(port, () => console.log(`Example app listening on ${port}!`));
 
 // mongodb+srv://Ria:<password>@nodeexpress-jwt-test.t77kt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
