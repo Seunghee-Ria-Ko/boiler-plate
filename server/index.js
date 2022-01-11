@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const { auth } = require("./middleware/auth");
 const { User } = require("./models/User");
 
-const port = 3000;
+const port = 5000;
 
 // urlencoded -> application/x-www-form-urlencoded 이렇게 된 데이터를 분석해서 가져올수있게 해줌
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,6 +26,10 @@ mongoose
   })
   .then(() => console.log("MongoDB Connected..."))
   .catch((err) => console.log(err));
+
+app.get("/api/hello", (req, res) => {
+  res.send("안녕하세요");
+});
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
